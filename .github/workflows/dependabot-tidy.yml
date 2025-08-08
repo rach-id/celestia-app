@@ -47,4 +47,4 @@ jobs:
           fi
           
           git commit -m "chore: run go mod tidy on all modules"
-          git push origin "HEAD:${{ github.head_ref }}"
+          git push --force origin "HEAD:${{ github.head_ref }}"
