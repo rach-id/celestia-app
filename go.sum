@@ -1093,6 +1093,8 @@ github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 h1:M8mH9eK4OUR4l
 github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567/go.mod h1:DWNGW8A4Y+GyBgPuaQJuWiy0XYftx4Xm/y5Jqk9I6VQ=
 github.com/rach-id/celestia-core v0.0.2-0.20261030183554-8fe3b92e99e4 h1:HNXPHRwUylTv4JkJwBkstSByxIaGZypx8QYNc/AuIS4=
 github.com/rach-id/celestia-core v0.0.2-0.20261030183554-8fe3b92e99e4/go.mod h1:XhXaOj4/A8CugWOkgxVO00HF7DMhtuIVrzxGuJbhn/8=
+github.com/rach-id/celestia-core v0.0.2-0.20261030185659-6a25fa6b0877 h1:GF669r9H9PmLoIyfqE+Te+d7PV1s/hxQ8CqvzcHHxFE=
+github.com/rach-id/celestia-core v0.0.2-0.20261030185659-6a25fa6b0877/go.mod h1:XhXaOj4/A8CugWOkgxVO00HF7DMhtuIVrzxGuJbhn/8=
 github.com/rach-id/cosmos-sdk v0.43.0-beta1.0.20261030183647-5be22babf40e h1:ktFFWk69JRAJQMOFkXrouhBFcPtAN4m2nANRS04tIIU=
 github.com/rach-id/cosmos-sdk v0.43.0-beta1.0.20261030183647-5be22babf40e/go.mod h1:GwD3U388qu6oP7zJBZvUnYIWb3RF+o6BlRXZEKrKT84=
 github.com/raeperd/recvcheck v0.2.0 h1:GnU+NsbiCqdC2XX5+vMZzP+jAJC5fht7rcVTAhX74UI=
