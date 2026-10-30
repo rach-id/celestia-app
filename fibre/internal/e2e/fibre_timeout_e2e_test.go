@@ -46,7 +46,7 @@ func (s *FibreTimeoutTestSuite) SetupSuite() {
 	ecfg := encoding.MakeConfig(app.ModuleEncodingRegisters...)
 	cfg := testnode.DefaultConfig().
 		WithFundedAccounts(fibre.DefaultKeyName).
-		WithDelayedPrecommitTimeout(500 * time.Millisecond).
+		WithTimeoutCommit(500 * time.Millisecond).
 		WithModifiers(setFibreShortLifetimes(ecfg.Codec, promiseTimeout, promiseTimeout))
 
 	cctx, _, grpcAddr := testnode.NewNetwork(t, cfg)

@@ -13,11 +13,6 @@ import (
 )
 
 func NewAppServer(logger log.Logger, db dbm.DB, traceStore io.Writer, appOptions servertypes.AppOptions) servertypes.Application {
-	var delayedPrecommitTimeout time.Duration
-	if v := appOptions.Get(DelayedPrecommitTimeoutFlag); v != nil {
-		delayedPrecommitTimeout = cast.ToDuration(v)
-	}
-
 	var timeoutCommit time.Duration
 	if v := appOptions.Get(TimeoutCommitFlag); v != nil {
 		timeoutCommit = cast.ToDuration(v)
@@ -27,7 +22,6 @@ func NewAppServer(logger log.Logger, db dbm.DB, traceStore io.Writer, appOptions
 		logger,
 		db,
 		traceStore,
-		delayedPrecommitTimeout,
 		timeoutCommit,
 		appOptions,
 		server.DefaultBaseappOptions(appOptions)...,

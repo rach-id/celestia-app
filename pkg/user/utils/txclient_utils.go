@@ -42,7 +42,7 @@ func SetupTxClient(
 	testnodeConfig := testnode.DefaultConfig().
 		WithTendermintConfig(tmConfig).
 		WithFundedAccounts(accounts...).
-		WithDelayedPrecommitTimeout(300 * time.Millisecond).
+		WithTimeoutCommit(300 * time.Millisecond).
 		WithModifiers(genesis.SetBlobParams(enc.Codec, blobParams)).
 		WithMaxBytes(blocksize)
 

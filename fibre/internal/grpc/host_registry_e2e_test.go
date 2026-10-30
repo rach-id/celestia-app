@@ -40,7 +40,7 @@ type IntegrationTestSuite struct {
 func (s *IntegrationTestSuite) SetupSuite() {
 	t := s.T()
 
-	cfg := testnode.DefaultConfig().WithFundedAccounts().WithDelayedPrecommitTimeout(time.Millisecond * 500)
+	cfg := testnode.DefaultConfig().WithFundedAccounts().WithTimeoutCommit(time.Millisecond * 500)
 	cctx, _, _ := testnode.NewNetwork(t, cfg)
 
 	s.cctx = cctx

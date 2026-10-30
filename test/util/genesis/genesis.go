@@ -243,7 +243,7 @@ func (g *Genesis) Export() (*coretypes.GenesisDoc, error) {
 		return nil, err
 	}
 
-	tempApp := app.New(log.NewNopLogger(), dbm.NewMemDB(), nil, 0, 0, simtestutil.EmptyAppOptions{})
+	tempApp := app.New(log.NewNopLogger(), dbm.NewMemDB(), nil, 0, simtestutil.EmptyAppOptions{})
 	return Document(
 		tempApp.DefaultGenesis(),
 		g.ecfg,
@@ -276,7 +276,7 @@ func (g *Genesis) ExportBytes() ([]byte, error) {
 			g.GenesisTime,
 		)
 	case 4, 5, 6, 7, 8, 9, 10, 11:
-		tempApp := app.New(log.NewNopLogger(), dbm.NewMemDB(), nil, 0, 0, simtestutil.EmptyAppOptions{})
+		tempApp := app.New(log.NewNopLogger(), dbm.NewMemDB(), nil, 0, simtestutil.EmptyAppOptions{})
 		mods := g.genOps
 		if g.appVersion < 11 {
 			// Older embedded binaries parse this genesis and reject fields

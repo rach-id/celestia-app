@@ -246,7 +246,7 @@ func openAppDB(t *testing.T, cfg *testnode.Config) dbm.DB {
 
 // newPlainApp opens the app without baseapp options, so it opens no other DBs.
 func newPlainApp(t *testing.T, db dbm.DB) *app.App {
-	return app.New(log.NewNopLogger(), db, nil, 0, 0, simtestutil.NewAppOptionsWithFlagHome(t.TempDir()))
+	return app.New(log.NewNopLogger(), db, nil, 0, simtestutil.NewAppOptionsWithFlagHome(t.TempDir()))
 }
 
 // requirePendingRollbackPanic requires a normal app open to refuse the unfinished rollback to target.

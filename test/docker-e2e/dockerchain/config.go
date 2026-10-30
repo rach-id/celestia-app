@@ -19,7 +19,8 @@ const (
 	celestiaImageEnvVar = "CELESTIA_IMAGE"
 
 	// TimeoutCommit and DelayedPrecommitTimeout are passed to celestia-appd
-	// start so test chains produce sub-second blocks.
+	// start so test chains produce sub-second blocks. From v11 the delayed
+	// precommit flag is ignored; older images still use it.
 	TimeoutCommit           = 250 * time.Millisecond
 	DelayedPrecommitTimeout = 250 * time.Millisecond
 )

@@ -5,5 +5,5 @@ set -euo pipefail
 # config.toml edit so existing devnet volumes pick it up too.
 exec celestia-appd start --home "/data/validator-$VALIDATOR" \
   --api.enable --api.address tcp://0.0.0.0:1317 \
-  --grpc.enable --grpc.address 0.0.0.0:9090 --delayed-precommit-timeout 1s --force-no-bbr \
+  --grpc.enable --grpc.address 0.0.0.0:9090 --timeout-commit 1s --force-no-bbr \
   --privval-grpc-allow-insecure

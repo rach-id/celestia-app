@@ -149,7 +149,7 @@ startCelestiaApp() {
     --api.enable \
     --grpc.enable \
     --grpc-web.enable \
-    --delayed-precommit-timeout 1s &
+    --timeout-commit 1s &
 
   CELESTIA_APP_PID=$!
   echo "celestia-appd started with PID: ${CELESTIA_APP_PID}"

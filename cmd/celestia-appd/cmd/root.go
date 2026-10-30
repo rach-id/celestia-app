@@ -35,7 +35,8 @@ const (
 	// TimeoutCommitFlag is a flag that can be used to override the timeout_commit.
 	TimeoutCommitFlag = "timeout-commit"
 
-	// DelayedPrecommitTimeoutFlag is a flag that can be used to override the DelayedPrecommitTimeout.
+	// DelayedPrecommitTimeoutFlag is deprecated and ignored: celestia-core no
+	// longer delays precommits. It is still accepted so old start scripts work.
 	DelayedPrecommitTimeoutFlag = "delayed-precommit-timeout"
 
 	// FlagFibrePromiseCache toggles the validator-local fibre promise cache used
@@ -52,7 +53,7 @@ func NewRootCmd() *cobra.Command {
 	// we "pre"-instantiate the application for getting the injected/configured encoding configuration
 	// note, this is not necessary when using app wiring, as depinject can be directly used.
 	opts := simtestutil.NewAppOptionsWithFlagHome(app.NodeHome)
-	tempApp := app.New(log.NewNopLogger(), dbm.NewMemDB(), nil, 0, 0, opts)
+	tempApp := app.New(log.NewNopLogger(), dbm.NewMemDB(), nil, 0, opts)
 	encodingConfig := tempApp.GetEncodingConfig()
 
 	initClientContext := client.Context{}.
@@ -162,7 +163,10 @@ func addStartFlags(startCmd *cobra.Command) {
 	}
 
 	startCmd.Flags().Duration(TimeoutCommitFlag, 0, "Override the application configured timeout_commit. Note: only for testing purposes.")
-	startCmd.Flags().Duration(DelayedPrecommitTimeoutFlag, 0, "Override the DelayedPrecommitTimeout to control block time. Note: only for testing purposes.")
+	startCmd.Flags().Duration(DelayedPrecommitTimeoutFlag, 0, "Deprecated and ignored.")
+	if err := startCmd.Flags().MarkDeprecated(DelayedPrecommitTimeoutFlag, "it is ignored: celestia-core no longer delays precommits. Use --timeout-commit to set the block time floor in tests."); err != nil {
+		panic(err)
+	}
 	startCmd.Flags().Bool(FlagForceNoBBR, false, "bypass the requirement to use bbr locally")
 	startCmd.Flags().Bool(bypassOverridesFlagKey, false, "bypass config overrides for consensus timeouts, P2P rates, and mempool settings. The CAT mempool type and min-retain-blocks are always enforced. WARNING: Only use if strictly required. Using this flag may prevent your node from staying at the tip of the chain.")
 	startCmd.Flags().Bool(FlagFibrePromiseCache, true, "enable the validator-local fibre promise cache used by the ValidatePaymentPromise query. Enabled by default.")

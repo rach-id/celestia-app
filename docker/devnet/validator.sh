@@ -58,7 +58,7 @@ trap cleanup EXIT
 trap 'exit 0' TERM INT
 celestia-appd start --home "$home" --force-no-bbr \
   --api.enable --api.address tcp://0.0.0.0:1317 --grpc.enable --grpc.address 0.0.0.0:9090 \
-  --delayed-precommit-timeout "${BLOCK_TIME:-1s}" "$@" &
+  --timeout-commit "${BLOCK_TIME:-1s}" "$@" &
 app_pid=$!
 pids+=("$app_pid")
 deadline=$((SECONDS + ${STARTUP_TIMEOUT:-120}))

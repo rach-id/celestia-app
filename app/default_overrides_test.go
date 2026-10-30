@@ -97,8 +97,8 @@ func TestDefaultConsensusConfig(t *testing.T) {
 	})
 
 	t.Run("consensus overrides", func(t *testing.T) {
-		assert.Equal(t, appconsts.TimeoutPropose, got.Consensus.TimeoutPropose)
-		assert.Equal(t, appconsts.TimeoutCommit, got.Consensus.TimeoutCommit)
+		assert.Equal(t, 1500*time.Millisecond, got.Consensus.TimeoutPropose)
+		assert.Equal(t, 800*time.Millisecond, got.Consensus.TimeoutCommit)
 		assert.Equal(t, 10*time.Millisecond, got.Consensus.PeerGossipSleepDuration)
 	})
 
@@ -138,7 +138,7 @@ func Test_ibcDefaultGenesis(t *testing.T) {
 	enc.Codec.MustUnmarshalJSON(raw, &got)
 
 	assert.Equal(t, []string{"06-solomachine", "07-tendermint"}, got.ClientGenesis.Params.AllowedClients)
-	assert.Equal(t, uint64((13 * time.Second).Nanoseconds()), got.ConnectionGenesis.Params.MaxExpectedTimePerBlock)
+	assert.Equal(t, uint64((4 * time.Second).Nanoseconds()), got.ConnectionGenesis.Params.MaxExpectedTimePerBlock)
 }
 
 func Test_slashingDefaultGenesis(t *testing.T) {

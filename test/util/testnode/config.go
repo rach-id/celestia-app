@@ -25,8 +25,6 @@ const (
 	DefaultInitialBalance       = genesis.DefaultInitialBalance
 	// TimeoutCommitFlag is a flag that can be used to override the timeout_commit.
 	TimeoutCommitFlag = "timeout-commit"
-	// DelayedPrecommitTimeout is a flag that can be used to override the DelayedPrecommitTimeout.
-	DelayedPrecommitTimeout = "delayed-precommit-timeout"
 )
 
 type UniversalTestingConfig struct {
@@ -84,20 +82,11 @@ func (c *Config) WithSuppressLogs(sl bool) *Config {
 	return c
 }
 
-// WithTimeoutCommit sets the timeout commit in the cometBFT config and returns
-// the Config. For backward compatibility, it also sets the app's block time.
+// WithTimeoutCommit sets the timeout commit, the floor on the block interval,
+// in the cometBFT config and the app options, and returns the Config.
 func (c *Config) WithTimeoutCommit(d time.Duration) *Config {
 	c.TmConfig.Consensus.TimeoutCommit = d
-	// For backward compatibility, also set the app option so existing tests continue to work
 	c.AppOptions.Set(TimeoutCommitFlag, d)
-	return c
-}
-
-// WithDelayedPrecommitTimeout sets the target block time using DelayedPrecommitTimeout in the app
-// options and returns the Config. This affects the DelayedPrecommitTimeout used for consistent
-// block timing.
-func (c *Config) WithDelayedPrecommitTimeout(d time.Duration) *Config {
-	c.AppOptions.Set(DelayedPrecommitTimeout, d)
 	return c
 }
 
@@ -152,8 +141,7 @@ func DefaultConfig() *Config {
 		WithAppConfig(DefaultAppConfig()).
 		WithAppOptions(DefaultAppOptions()).
 		WithSuppressLogs(true).
-		WithDelayedPrecommitTimeout(200 * time.Millisecond).
-		WithTimeoutCommit(time.Millisecond)
+		WithTimeoutCommit(200 * time.Millisecond)
 }
 
 func DefaultConsensusParams() *tmproto.ConsensusParams {
@@ -183,11 +171,6 @@ func DefaultAppCreator(opts ...AppCreationOptions) srvtypes.AppCreator {
 		baseAppOptions := server.DefaultBaseappOptions(appOptions)
 		baseAppOptions = append(baseAppOptions, baseapp.SetMinGasPrices(fmt.Sprintf("%v%v", appconsts.DefaultMinGasPrice, appconsts.BondDenom)))
 
-		var delayedPrecommitTimeout time.Duration
-		if v := appOptions.Get(DelayedPrecommitTimeout); v != nil {
-			delayedPrecommitTimeout = v.(time.Duration)
-		}
-
 		var timeoutCommit time.Duration
 		if v := appOptions.Get(TimeoutCommitFlag); v != nil {
 			timeoutCommit = v.(time.Duration)
@@ -197,7 +180,6 @@ func DefaultAppCreator(opts ...AppCreationOptions) srvtypes.AppCreator {
 			log.NewNopLogger(),
 			dbm.NewMemDB(),
 			nil, // trace store
-			delayedPrecommitTimeout,
 			timeoutCommit,
 			simtestutil.EmptyAppOptions{},
 			baseAppOptions...,
@@ -219,7 +201,6 @@ func CustomAppCreator(appOptions ...func(*baseapp.BaseApp)) srvtypes.AppCreator 
 			log.NewNopLogger(),
 			dbm.NewMemDB(),
 			nil, // trace store
-			0,   // delayed precommit timeout
 			0,   // timeout commit
 			simtestutil.EmptyAppOptions{},
 			appOptions...,

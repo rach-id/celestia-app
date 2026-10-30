@@ -24,21 +24,24 @@ func TestUpgrades(t *testing.T) {
 		logger := log.NewNopLogger()
 		db := tmdb.NewMemDB()
 		traceStore := &NoopWriter{}
-		delayedPrecommitTimeout := time.Second
 		appOptions := NoopAppOptions{}
 
-		testApp := app.New(logger, db, traceStore, delayedPrecommitTimeout, 0, appOptions, baseapp.SetChainID(testfactory.ChainID))
+		testApp := app.New(logger, db, traceStore, 0, appOptions, baseapp.SetChainID(testfactory.ChainID))
 
 		require.False(t, testApp.UpgradeKeeper.HasHandler("v10"))
 		require.True(t, testApp.UpgradeKeeper.HasHandler("v11"))
 	})
 }
 
-// TestV11UpgradePreservesState checks that the v11 upgrade only runs module
-// migrations and doesn't repeat the v10 upgrade's state changes.
+// TestV11UpgradePreservesState checks that the v11 upgrade only lowers the IBC
+// MaxExpectedTimePerBlock, runs module migrations and doesn't repeat the v10
+// upgrade's state changes.
 func TestV11UpgradePreservesState(t *testing.T) {
 	testApp, _, _ := util.NewTestAppWithGenesisSet(app.DefaultConsensusParams())
 	ctx := testApp.NewContext(false).WithBlockHeight(1)
+	ibcParams := testApp.IBCKeeper.ConnectionKeeper.GetParams(ctx)
+	ibcParams.MaxExpectedTimePerBlock = uint64((13 * time.Second).Nanoseconds())
+	testApp.IBCKeeper.ConnectionKeeper.SetParams(ctx, ibcParams)
 
 	fibreAddress := testApp.AccountKeeper.GetModuleAddress(fibretypes.ModuleName)
 	fibreAccount := testApp.AccountKeeper.GetModuleAccount(ctx, fibretypes.ModuleName)
@@ -56,6 +59,7 @@ func TestV11UpgradePreservesState(t *testing.T) {
 	gotConsensusParams, err := testApp.ConsensusKeeper.ParamsStore.Get(ctx)
 	require.NoError(t, err)
 	require.Equal(t, consensusParams, gotConsensusParams)
+	require.Equal(t, uint64((4 * time.Second).Nanoseconds()), testApp.IBCKeeper.ConnectionKeeper.GetParams(ctx).MaxExpectedTimePerBlock)
 	gotModuleVersions, err := testApp.UpgradeKeeper.GetModuleVersionMap(ctx)
 	require.NoError(t, err)
 	require.Equal(t, moduleVersions, gotModuleVersions)

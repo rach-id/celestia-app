@@ -273,9 +273,9 @@ func DefaultConsensusConfig() *tmcfg.Config {
 	cfg.Mempool.Type = tmcfg.MempoolTypeCAT
 	cfg.Mempool.MaxGossipDelay = time.Second * 20
 
-	cfg.Consensus.TimeoutPropose = appconsts.TimeoutPropose
-	cfg.Consensus.TimeoutCommit = appconsts.TimeoutCommit
-	cfg.Consensus.SkipTimeoutCommit = false
+	timeouts := appconsts.GetConsensusTimeouts(appconsts.Version)
+	cfg.Consensus.TimeoutPropose = timeouts.TimeoutPropose
+	cfg.Consensus.TimeoutCommit = timeouts.TimeoutCommit
 	// Bounds how late a vote or block part reaches a peer that just became
 	// ready for it. The upstream 100ms is a large share of a one second block.
 	cfg.Consensus.PeerGossipSleepDuration = 10 * time.Millisecond

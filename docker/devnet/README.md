@@ -42,7 +42,7 @@ Published ports bind to loopback. Validator signing stays inside the validator c
 | Environment variable | Default | Purpose |
 | -------------------- | ------- | ------- |
 | `P2P_NETWORK` | `devnet` | Network and chain ID; reset volumes when changing it |
-| `BLOCK_TIME` | `1s` | Delayed precommit timeout |
+| `BLOCK_TIME` | `1s` | Timeout commit (floor on the block interval) |
 | `FIBRE_HOST` | `localhost:7980` | Advertised Fibre address |
 
 Container clients on the Compose network use `validator:26657` and `validator:9090`. Set `FIBRE_HOST=validator:7980` for these clients; host clients need an advertised address reachable from the host instead. `BLOCK_TIME` and `FIBRE_HOST` changes take effect when the validator container is recreated.

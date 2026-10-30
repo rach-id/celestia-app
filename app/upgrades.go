@@ -73,7 +73,17 @@ func (app App) RegisterUpgradeHandlers() {
 		func(ctx context.Context, _ upgradetypes.Plan, fromVM module.VersionMap) (module.VersionMap, error) {
 			sdkCtx := sdk.UnwrapSDKContext(ctx)
 			sdkCtx.Logger().Info("running upgrade handler", "upgrade-name", upgradeName)
+			app.SetMaxExpectedTimePerBlock(sdkCtx)
 			return app.ModuleManager.RunMigrations(ctx, app.configurator, fromVM)
 		},
 	)
+}
+
+// SetMaxExpectedTimePerBlock sets the IBC connection MaxExpectedTimePerBlock
+// parameter to appconsts.MaxExpectedTimePerBlock.
+func (app App) SetMaxExpectedTimePerBlock(ctx sdk.Context) {
+	params := app.IBCKeeper.ConnectionKeeper.GetParams(ctx)
+	params.MaxExpectedTimePerBlock = uint64(appconsts.MaxExpectedTimePerBlock.Nanoseconds())
+	ctx.Logger().Info("setting IBC connection MaxExpectedTimePerBlock", "value", appconsts.MaxExpectedTimePerBlock)
+	app.IBCKeeper.ConnectionKeeper.SetParams(ctx, params)
 }

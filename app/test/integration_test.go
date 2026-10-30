@@ -46,7 +46,7 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	t := s.T()
 	s.accounts = testfactory.GenerateAccounts(142)
 
-	cfg := testnode.DefaultConfig().WithFundedAccounts(s.accounts...).WithDelayedPrecommitTimeout(time.Millisecond * 500)
+	cfg := testnode.DefaultConfig().WithFundedAccounts(s.accounts...).WithTimeoutCommit(time.Millisecond * 500)
 	cctx, _, _ := testnode.NewNetwork(t, cfg)
 
 	s.cctx = cctx
@@ -158,10 +158,10 @@ func (s *IntegrationTestSuite) TestUnwrappedPFBRejection() {
 		s.accounts[140:],
 	)
 
-	btx, isBlob := coretypes.UnmarshalBlobTx(blobTx[0])
+	innerTx, isBlob := coretypes.UnwrapBlobTx(blobTx[0], appconsts.Version)
 	require.True(t, isBlob)
 
-	res, err := s.cctx.BroadcastTxSync(btx.Tx)
+	res, err := s.cctx.BroadcastTxSync(innerTx)
 	require.NoError(t, err)
 	require.Equal(t, blobtypes.ErrNoBlobs.ABCICode(), res.Code)
 }
@@ -203,7 +203,7 @@ func (s *IntegrationTestSuite) TestShareInclusionProof() {
 
 		require.EqualValues(t, appconsts.Version, blockRes.Block.Version.App)
 
-		_, isBlobTx := coretypes.UnmarshalBlobTx(blockRes.Block.Txs[txResp.Index])
+		_, isBlobTx := coretypes.UnwrapBlobTx(blockRes.Block.Txs[txResp.Index], appconsts.Version)
 		require.True(t, isBlobTx)
 
 		// get the blob shares

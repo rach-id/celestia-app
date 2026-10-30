@@ -55,8 +55,8 @@ const (
 	EvidenceMaxAgeV9Blocks  = 559940
 	EvidenceMaxAgeV10Blocks = 404400
 
-	// CIP-048 IBC MaxExpectedTimePerBlock for v9 (in nanoseconds)
-	MaxExpectedTimePerBlockV9Ns = uint64(13 * time.Second)
+	// IBC MaxExpectedTimePerBlock for v11: 5x the 800 ms block floor (in nanoseconds)
+	MaxExpectedTimePerBlockV11Ns = uint64(4 * time.Second)
 
 	// Block params for v9
 	MaxBytesV9 = 32 * 1024 * 1024 // 32 MiB
@@ -458,19 +458,19 @@ func (s *CelestiaTestSuite) ValidatePostUpgrade(ctx context.Context, chain tasto
 	s.Require().NoError(err, "failed to fetch ABCI info")
 	s.Require().Equal(appVersion, abciInfo.Response.GetAppVersion(), "should be running v%d", appVersion)
 
-	// CIP-048: Consensus timeout parameters
+	// v11 consensus timeouts: 800 ms TimeoutCommit floor, no delayed precommit
 	s.validateTimeoutInfo(ctx, node, cfg)
 	// Evidence params: MaxAgeNumBlocks bounded to the unbonding period.
 	s.validateEvidenceParams(ctx, node, EvidenceMaxAgeV6Hours, EvidenceMaxAgeV10Blocks, appVersion)
-	// CIP-048: IBC MaxExpectedTimePerBlock corrected to 13s
+	// IBC MaxExpectedTimePerBlock lowered to 4s by the v11 upgrade handler
 	s.validateMaxExpectedTimePerBlock(ctx, node)
 	// Block params: max_bytes = 32 MiB
 	s.validateBlockParams(ctx, node, MaxBytesV9, appVersion)
 }
 
 // validateTimeoutInfo queries ABCIInfo and validates that the consensus timeout
-// parameters match the expected v9 values per CIP-048, or the start-flag
-// overrides the test chain runs with.
+// parameters match the v11 values, with the TimeoutCommit start-flag override
+// the test chain runs with. The deprecated delayed precommit flag is ignored.
 func (s *CelestiaTestSuite) validateTimeoutInfo(ctx context.Context, node tastoratypes.ChainNode, cfg *dockerchain.Config) {
 	rpcClient, err := node.GetRPCClient()
 	s.Require().NoError(err, "failed to get RPC client")
@@ -478,23 +478,24 @@ func (s *CelestiaTestSuite) validateTimeoutInfo(ctx context.Context, node tastor
 	abciInfo, err := rpcClient.ABCIInfo(ctx)
 	s.Require().NoError(err, "failed to fetch ABCI info")
 
-	timeoutCommit, delayedPrecommitTimeout := dockerchain.TimeoutCommit, dockerchain.DelayedPrecommitTimeout
-	if cfg.DefaultBlockTime {
-		timeoutCommit, delayedPrecommitTimeout = appconsts.TimeoutCommit, appconsts.DelayedPrecommitTimeout
+	want := appconsts.GetConsensusTimeouts(appconsts.Version)
+	if !cfg.DefaultBlockTime {
+		want.TimeoutCommit = dockerchain.TimeoutCommit
 	}
 
 	ti := abciInfo.Response.TimeoutInfo
-	s.Require().Equal(appconsts.TimeoutPropose, ti.TimeoutPropose, "v9 TimeoutPropose mismatch")
-	s.Require().Equal(delayedPrecommitTimeout, ti.DelayedPrecommitTimeout, "DelayedPrecommitTimeout mismatch")
-	s.Require().Equal(appconsts.TimeoutPrevote, ti.TimeoutPrevote, "v9 TimeoutPrevote mismatch")
-	s.Require().Equal(appconsts.TimeoutPrevoteDelta, ti.TimeoutPrevoteDelta, "v9 TimeoutPrevoteDelta mismatch")
-	s.Require().Equal(appconsts.TimeoutPrecommit, ti.TimeoutPrecommit, "v9 TimeoutPrecommit mismatch")
-	s.Require().Equal(appconsts.TimeoutPrecommitDelta, ti.TimeoutPrecommitDelta, "v9 TimeoutPrecommitDelta mismatch")
-	s.Require().Equal(timeoutCommit, ti.TimeoutCommit, "TimeoutCommit mismatch")
+	s.Require().Equal(want.TimeoutPropose, ti.TimeoutPropose, "TimeoutPropose mismatch")
+	s.Require().Equal(want.TimeoutProposeDelta, ti.TimeoutProposeDelta, "TimeoutProposeDelta mismatch")
+	s.Require().Equal(want.TimeoutPrevote, ti.TimeoutPrevote, "TimeoutPrevote mismatch")
+	s.Require().Equal(want.TimeoutPrevoteDelta, ti.TimeoutPrevoteDelta, "TimeoutPrevoteDelta mismatch")
+	s.Require().Equal(want.TimeoutPrecommit, ti.TimeoutPrecommit, "TimeoutPrecommit mismatch")
+	s.Require().Equal(want.TimeoutPrecommitDelta, ti.TimeoutPrecommitDelta, "TimeoutPrecommitDelta mismatch")
+	s.Require().Equal(want.TimeoutCommit, ti.TimeoutCommit, "TimeoutCommit mismatch")
+	s.Require().Zero(ti.DelayedPrecommitTimeout, "DelayedPrecommitTimeout must be 0 from v11")
 }
 
 // validateMaxExpectedTimePerBlock queries the IBC connection params and
-// validates that MaxExpectedTimePerBlock was corrected to 13s per CIP-048.
+// validates that the v11 upgrade set MaxExpectedTimePerBlock to 4s.
 func (s *CelestiaTestSuite) validateMaxExpectedTimePerBlock(ctx context.Context, node tastoratypes.ChainNode) {
 	client, err := getIBCConnectionQueryClient(node)
 	s.Require().NoError(err)
@@ -502,8 +503,8 @@ func (s *CelestiaTestSuite) validateMaxExpectedTimePerBlock(ctx context.Context,
 	resp, err := client.ConnectionParams(ctx, &ibcconnectiontypes.QueryConnectionParamsRequest{})
 	s.Require().NoError(err, "failed to query IBC connection params")
 
-	s.Require().Equal(MaxExpectedTimePerBlockV9Ns, resp.Params.MaxExpectedTimePerBlock,
-		"v9 MaxExpectedTimePerBlock mismatch: expected %d ns, got %d ns", MaxExpectedTimePerBlockV9Ns, resp.Params.MaxExpectedTimePerBlock)
+	s.Require().Equal(MaxExpectedTimePerBlockV11Ns, resp.Params.MaxExpectedTimePerBlock,
+		"v11 MaxExpectedTimePerBlock mismatch: expected %d ns, got %d ns", MaxExpectedTimePerBlockV11Ns, resp.Params.MaxExpectedTimePerBlock)
 }
 
 // validateBlockParams queries consensus params and validates max_bytes.

@@ -111,7 +111,7 @@ func TestStateFixesValid(t *testing.T) {
 // genesis state.
 func newStateFixApp(t *testing.T, db tmdb.DB, fixes []app.StateFix, initChain bool) *app.App {
 	t.Helper()
-	testApp := app.New(log.NewNopLogger(), db, nil, 0, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
+	testApp := app.New(log.NewNopLogger(), db, nil, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
 	testApp.SetStateFixes(fixes)
 	if initChain {
 		genesisState, _, _ := util.GenesisStateWithSingleValidator(testApp)

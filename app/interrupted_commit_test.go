@@ -19,7 +19,7 @@ import (
 func TestRestartAfterInterruptedCommit(t *testing.T) {
 	db := tmdb.NewMemDB()
 	newApp := func() *app.App {
-		return app.New(log.NewNopLogger(), db, nil, 0, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
+		return app.New(log.NewNopLogger(), db, nil, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
 	}
 
 	testApp := newApp()

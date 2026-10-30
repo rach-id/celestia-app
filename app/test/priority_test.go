@@ -48,7 +48,7 @@ func (s *PriorityTestSuite) SetupSuite() {
 	cfg := testnode.DefaultConfig().
 		WithFundedAccounts(s.accountNames...).
 		// use a long block time to guarantee that some transactions are included in the same block
-		WithDelayedPrecommitTimeout(time.Second)
+		WithTimeoutCommit(time.Second)
 
 	cctx, _, _ := testnode.NewNetwork(t, cfg)
 	s.cctx = cctx

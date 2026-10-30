@@ -47,7 +47,7 @@ func (s *MempoolQuerySequenceSuite) SetupSuite() {
 	cfg := DefaultConfig().
 		WithFundedAccounts(s.accounts...).
 		WithModifiers(genesis.SetBlobParams(enc.Codec, blobGenState.Params)).
-		WithDelayedPrecommitTimeout(time.Second * 2)
+		WithTimeoutCommit(time.Second * 2)
 
 	cctx, _, _ := NewNetwork(t, cfg)
 	s.cctx = cctx

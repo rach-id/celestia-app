@@ -120,7 +120,7 @@ func TestEstimateGasPrice(t *testing.T) {
 	// price, then test the gas estimator API.
 	accountNames := testfactory.GenerateAccounts(10)
 	cfg := testnode.DefaultConfig().WithFundedAccounts(accountNames...).
-		WithDelayedPrecommitTimeout(10 * time.Second) // to have all transactions in the mempool without being included in a block
+		WithTimeoutCommit(10 * time.Second) // to have all transactions in the mempool without being included in a block
 
 	cctx, _, _ := testnode.NewNetwork(t, cfg)
 

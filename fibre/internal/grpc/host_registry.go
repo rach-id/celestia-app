@@ -18,9 +18,9 @@ import (
 var _ validator.HostRegistry = &HostRegistry{}
 
 // DefaultRefreshInterval is the minimum time between on-chain host re-queries
-// for a single validator. It matches the expected block time, since registry
+// for a single validator. It matches the minimum block interval, since registry
 // state cannot change faster than one block.
-var DefaultRefreshInterval = appconsts.DelayedPrecommitTimeout + appconsts.TimeoutCommit
+var DefaultRefreshInterval = appconsts.GetConsensusTimeouts(appconsts.Version).TimeoutCommit
 
 // DefaultQueryTimeout bounds a single on-chain host query in
 // [HostRegistry.GetHost]. It matches the client's default RPCTimeout so a slow

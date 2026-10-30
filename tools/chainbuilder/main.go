@@ -197,7 +197,6 @@ func Run(ctx context.Context, cfg BuilderConfig, dir string) error {
 		log.NewNopLogger(),
 		appDB,
 		nil,
-		0, // delayed precommit timeout
 		0, // timeout commit
 		util.EmptyAppOptions{},
 		baseapp.SetChainID(cfg.ChainID),
@@ -375,11 +374,7 @@ func Run(ctx context.Context, cfg BuilderConfig, dir string) error {
 
 			txs := make([][]byte, len(block.Txs))
 			for idx, tx := range block.Txs {
-				blobTx, isBlobTx := types.UnmarshalBlobTx(tx)
-				if isBlobTx {
-					tx = blobTx.Tx
-				}
-				txs[idx] = tx
+				txs[idx], _ = types.UnwrapBlobTx(tx, cfg.AppVersion)
 			}
 
 			resp, err := simApp.FinalizeBlock(&abci.RequestFinalizeBlock{

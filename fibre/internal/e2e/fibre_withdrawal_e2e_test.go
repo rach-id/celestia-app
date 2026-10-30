@@ -31,7 +31,7 @@ func TestFibreWithdrawalLifecycle(t *testing.T) {
 
 	cfg := testnode.DefaultConfig().
 		WithFundedAccounts(fibre.DefaultKeyName).
-		WithDelayedPrecommitTimeout(500 * time.Millisecond).
+		WithTimeoutCommit(500 * time.Millisecond).
 		WithModifiers(setFibreWithdrawalDelay(ecfg.Codec, withdrawalDelay))
 
 	cctx, _, _ := testnode.NewNetwork(t, cfg)

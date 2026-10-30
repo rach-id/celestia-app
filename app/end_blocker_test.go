@@ -32,7 +32,7 @@ func TestEndBlockerUpgrade(t *testing.T) {
 
 		res, err := testApp.EndBlocker(ctx)
 		require.NoError(t, err)
-		require.Equal(t, testApp.TimeoutInfo(), res.TimeoutInfo)
+		require.Equal(t, testApp.TimeoutInfo(current), res.TimeoutInfo)
 		requireNoUpgradeScheduled(t, testApp, ctx, home, current)
 	})
 
@@ -69,7 +69,7 @@ func TestEndBlockerUpgrade(t *testing.T) {
 
 		res, err := testApp.EndBlocker(ctx)
 		require.NoError(t, err)
-		require.Equal(t, testApp.TimeoutInfo(), res.TimeoutInfo)
+		require.Equal(t, testApp.TimeoutInfo(current+1), res.TimeoutInfo)
 
 		appVersion, err := testApp.AppVersion(ctx)
 		require.NoError(t, err)
@@ -150,7 +150,7 @@ func TestEndBlockerUpgradeFailureIsNotCommitted(t *testing.T) {
 func TestNewAppWithPendingV11Upgrade(t *testing.T) {
 	home := setNodeHome(t)
 	db := tmdb.NewMemDB()
-	testApp := app.New(log.NewNopLogger(), db, nil, 0, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
+	testApp := app.New(log.NewNopLogger(), db, nil, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
 	genesisState, _, _ := util.GenesisStateWithSingleValidator(testApp)
 	testApp = util.InitialiseTestAppWithGenesis(testApp, app.DefaultConsensusParams(), genesisState)
 	finalizeAndCommit(t, testApp)
@@ -161,7 +161,7 @@ func TestNewAppWithPendingV11Upgrade(t *testing.T) {
 	writeUpgradeInfo(t, home, plan)
 
 	require.NotPanics(t, func() {
-		app.New(log.NewNopLogger(), db, nil, 0, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
+		app.New(log.NewNopLogger(), db, nil, 0, util.EmptyAppOptions{}, baseapp.SetChainID(util.ChainID))
 	})
 }
 

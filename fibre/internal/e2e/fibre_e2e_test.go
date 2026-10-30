@@ -61,7 +61,7 @@ func (s *FibreE2ETestSuite) SetupSuite() {
 
 	cfg := testnode.DefaultConfig().
 		WithFundedAccounts(fibre.DefaultKeyName, noEscrowKeyName).
-		WithDelayedPrecommitTimeout(500 * time.Millisecond)
+		WithTimeoutCommit(500 * time.Millisecond)
 
 	cctx, _, grpcAddr := testnode.NewNetwork(t, cfg)
 	s.cctx = cctx

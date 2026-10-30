@@ -103,7 +103,6 @@ func NewTestApp() *app.App {
 		db,
 		nil,
 		0,
-		0,
 		EmptyAppOptions{},
 		baseapp.SetChainID(ChainID),
 	)
