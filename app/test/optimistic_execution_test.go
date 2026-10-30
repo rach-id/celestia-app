@@ -94,7 +94,7 @@ func (p *oePair) mixedTxs() [][]byte {
 		idx, signer := p.nextSigner()
 		from := signer.Account(p.accounts[idx]).Address()
 		msg := banktypes.NewMsgSend(from, from, sdk.NewCoins(sdk.NewInt64Coin(appconsts.BondDenom, 10)))
-		tx, _, err := signer.CreateTx([]sdk.Msg{msg}, blobfactory.DefaultTxOpts()...)
+		tx, _, err := signer.CreateTx([]sdk.Msg{msg}, blobfactory.DefaultSDKTxOpts()...)
 		require.NoError(p.t, err)
 		txs = append(txs, tx)
 	}
@@ -192,10 +192,7 @@ func blockHeader(height int64, blockTime time.Time) *cmtproto.Header {
 func coreFinalizeTxs(blockTxs [][]byte) [][]byte {
 	txs := make([][]byte, len(blockTxs))
 	for i, tx := range blockTxs {
-		if blobTx, isBlobTx := coretypes.UnmarshalBlobTx(tx); isBlobTx {
-			tx = blobTx.Tx
-		}
-		txs[i] = tx
+		txs[i], _ = coretypes.UnwrapBlobTx(tx, appconsts.Version)
 	}
 	return txs
 }
