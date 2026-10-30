@@ -53,8 +53,8 @@ type ClientConfig struct {
 	DetachBackgroundUploads bool
 
 	// HostRefreshInterval is the minimum time between on-chain host re-queries
-	// for a single validator when a request fails. Defaults to the expected
-	// block time, since registry state cannot change faster than one block.
+	// for a single validator when a request fails. Defaults to the minimum
+	// block interval, since registry state cannot change faster than one block.
 	HostRefreshInterval time.Duration
 
 	// StateClientFn creates a [state.Client] for communicating with a celestia-app node.

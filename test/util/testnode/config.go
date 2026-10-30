@@ -90,6 +90,14 @@ func (c *Config) WithTimeoutCommit(d time.Duration) *Config {
 	return c
 }
 
+// WithDelayedPrecommitTimeout sets the TimeoutCommit floor to d, which gives
+// the block time the delayed precommit timeout used to give.
+//
+// Deprecated: celestia-core no longer delays precommits. Use WithTimeoutCommit.
+func (c *Config) WithDelayedPrecommitTimeout(d time.Duration) *Config {
+	return c.WithTimeoutCommit(d)
+}
+
 // WithFundedAccounts sets the genesis accounts and returns the Config.
 func (c *Config) WithFundedAccounts(accounts ...string) *Config {
 	c.Genesis = c.Genesis.WithKeyringAccounts(

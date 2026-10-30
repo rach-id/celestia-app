@@ -162,7 +162,7 @@ func addStartFlags(startCmd *cobra.Command) {
 		panic(err)
 	}
 
-	startCmd.Flags().Duration(TimeoutCommitFlag, 0, "Override the application configured timeout_commit. Note: only for testing purposes.")
+	startCmd.Flags().Duration(TimeoutCommitFlag, 0, "Override the application configured timeout_commit, the floor on the block interval. Note: only for testing purposes.")
 	startCmd.Flags().Duration(DelayedPrecommitTimeoutFlag, 0, "Deprecated and ignored.")
 	if err := startCmd.Flags().MarkDeprecated(DelayedPrecommitTimeoutFlag, "it is ignored: celestia-core no longer delays precommits. Use --timeout-commit to set the block time floor in tests."); err != nil {
 		panic(err)

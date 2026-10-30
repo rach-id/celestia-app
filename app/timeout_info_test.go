@@ -70,7 +70,9 @@ func TestTimeoutInfo(t *testing.T) {
 		}
 	})
 
-	t.Run("v10 to v11 upgrade block returns v11 timeouts", func(t *testing.T) {
+	// Production runs the v10 -> v11 upgrade block in the embedded v10 app, so
+	// this guards later upgrades that the native app executes.
+	t.Run("upgrade block returns the new version's timeouts", func(t *testing.T) {
 		testApp, _ := newEndBlockerTestApp(t)
 		ctx := testApp.NewUncachedContext(false, cmtproto.Header{})
 		require.NoError(t, testApp.SetAppVersion(ctx, 10))

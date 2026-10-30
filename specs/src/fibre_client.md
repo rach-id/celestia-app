@@ -60,7 +60,7 @@ type ClientConfig struct {
 }
 ```
 
-`HostRefreshInterval` throttles how often the default state client re-queries a validator's on-chain fibre host (defaults to the expected block time). `Escrow` configures the client-side escrow auto-funding described in section 11.
+`HostRefreshInterval` throttles how often the default state client re-queries a validator's on-chain fibre host (defaults to the minimum block interval, `TimeoutCommit`). `Escrow` configures the client-side escrow auto-funding described in section 11.
 
 Defaults come from `DefaultProtocolParams`:
 
