@@ -2,6 +2,7 @@ package app
 
 import (
 	"bytes"
+	"os"
 	"slices"
 	"sync"
 
@@ -84,7 +85,8 @@ func (c *proposalCache) Take(key proposalKey, txs [][]byte) *proposalArtifacts {
 	c.entry = nil
 	c.mu.Unlock()
 
-	if entry == nil || entry.key != key {
+	// Bench only: a miss makes the proposer's ProcessProposal cost what a non-proposer pays.
+	if entry == nil || entry.key != key || benchNoProposalCache {
 		return nil
 	}
 	if len(entry.blobTxs) != len(entry.txs) || !slices.EqualFunc(entry.txs, txs, bytes.Equal) {
@@ -92,3 +94,5 @@ func (c *proposalCache) Take(key proposalKey, txs [][]byte) *proposalArtifacts {
 	}
 	return entry
 }
+
+var benchNoProposalCache = os.Getenv("CELESTIA_BENCH_NO_PROPOSAL_CACHE") == "1"
