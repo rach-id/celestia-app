@@ -22,6 +22,7 @@ func (k Keeper) BeginBlocker(ctx sdk.Context) error {
 	if err := k.pruneProcessedPayments(ctx); err != nil {
 		return err
 	}
+	k.benchFill(ctx)
 
 	return nil
 }
