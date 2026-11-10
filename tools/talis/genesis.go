@@ -211,6 +211,7 @@ func createPayload(ips, encoders []Instance, chainID, ppath string, squareSize i
 	}
 
 	stake := int64(genesis.DefaultInitialBalance) / 2
+	stakes := make([]int64, len(ips))
 	for index, info := range ips {
 		switch {
 		case len(stakingWeights) > 0:
@@ -220,6 +221,7 @@ func createPayload(ips, encoders []Instance, chainID, ppath string, squareSize i
 		case useMainnetDistribution:
 			stake = getMainnetStake(index)
 		}
+		stakes[index] = stake
 		err = n.AddValidator(
 			info.Name,
 			info.PublicIP,
@@ -250,6 +252,10 @@ func createPayload(ips, encoders []Instance, chainID, ppath string, squareSize i
 
 	for _, val := range n.genesis.Validators() {
 		fmt.Println(val.Name, val.ConsensusKey.PubKey())
+	}
+
+	if err := writeValidatorPower(ppath, ips, stakes); err != nil {
+		return err
 	}
 
 	err = n.InitNodes(ppath)
@@ -309,10 +315,11 @@ func getMainnetStake(index int) int64 {
 			1202416, 1156152, 1137365, 1101315, 1045017, 1000381, 977562, 948538, 820448, 445353,
 		}
 	}
+	// The figures are in TIA; stake is in utia.
 	if index >= len(mainnetVotingPowers) {
-		return int64(mainnetVotingPowers[len(mainnetVotingPowers)-1])
+		return int64(mainnetVotingPowers[len(mainnetVotingPowers)-1]) * utiaPerTIA
 	}
-	return int64(mainnetVotingPowers[index])
+	return int64(mainnetVotingPowers[index]) * utiaPerTIA
 }
 
 // stageEncoderPayload copies the binaries (celestia-appd, fibre-txsim), genesis,
