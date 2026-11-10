@@ -65,7 +65,7 @@ var v11ConsensusTimeouts = ConsensusTimeouts{
 
 // GetConsensusTimeouts returns the consensus timeouts for appVersion.
 func GetConsensusTimeouts(appVersion uint64) ConsensusTimeouts {
-	if appVersion <= 10 {
+	if appVersion <= 10 || BenchLegacyTimeouts {
 		return v10ConsensusTimeouts
 	}
 	return v11ConsensusTimeouts
