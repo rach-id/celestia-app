@@ -180,6 +180,12 @@ func run(cfg config) error {
 	if err != nil {
 		return fmt.Errorf("failed to initialize keyring: %w", err)
 	}
+	if noConfirm {
+		// Bench: every file-keyring read decrypts the key, ~ms per Sign; sign from memory instead.
+		if kr, err = memKeyring(kr, encCfg, cfg.keyPrefix, cfg.concurrency); err != nil {
+			return err
+		}
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
