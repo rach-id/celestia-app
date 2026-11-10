@@ -513,6 +513,10 @@ func submitBlob(ctx context.Context, w worker, blobSize int, uploadOnly bool, st
 		st.totalSent.Add(1)
 		return
 	}
+	if promiseOnly {
+		submitPromiseOnly(ctx, w, ns, blobSize, uploadOnly, st, confirmCh)
+		return
+	}
 
 	var data []byte
 	if w.preparedBlob == nil {
