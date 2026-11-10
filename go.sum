@@ -249,8 +249,6 @@ github.com/catenacyber/perfsprint v0.10.1 h1:u7Riei30bk46XsG8nknMhKLXG9BcXz3+3tl
 github.com/catenacyber/perfsprint v0.10.1/go.mod h1:DJTGsi/Zufpuus6XPGJyKOTMELe347o6akPvWG9Zcsc=
 github.com/ccojocar/zxcvbn-go v1.0.4 h1:FWnCIRMXPj43ukfX000kvBZvV6raSxakYr1nzyNrUcc=
 github.com/ccojocar/zxcvbn-go v1.0.4/go.mod h1:3GxGX+rHmueTUMvm5ium7irpyjmm7ikxYFOSJB21Das=
-github.com/celestiaorg/celestia-core v1.54.0-tm-v0.38.17.0.20261110095455-64bb1416734a h1:qer+KIsYCl329VLTpkLW6Cnb9+TzJZtA3lPEI4T9tDc=
-github.com/celestiaorg/celestia-core v1.54.0-tm-v0.38.17.0.20261110095455-64bb1416734a/go.mod h1:OZ9m6NfK/umKoWMzVAL2pC/oBQbHtB3dP24hHmVBrwo=
 github.com/celestiaorg/celestia-core v1.55.0-tm-v0.34.35 h1:FREwqZwPvYsodr1AqqEIyW+VsBnwTzJNtC6NFdZX8rs=
 github.com/celestiaorg/celestia-core v1.55.0-tm-v0.34.35/go.mod h1:SI38xqZZ4ccoAxszUJqsJ/a5rOkzQRijzHQQlLKkyUc=
 github.com/celestiaorg/cosmos-sdk v0.53.2 h1:mnUZG9WoOV+WFShJ6/FiYyV1Zvk2N4NWyllK3zw4RU8=
@@ -1093,6 +1091,8 @@ github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727 h1:TCg2WBOl
 github.com/quasilyte/regex/syntax v0.0.0-20210819130434-b3f0c404a727/go.mod h1:rlzQ04UMyJXu/aOvhd8qT+hvDrFpiwqp8MRXDY9szc0=
 github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567 h1:M8mH9eK4OUR4lu7Gd+PU1fV2/qnDNfzT635KRSObncs=
 github.com/quasilyte/stdinfo v0.0.0-20220114132959-f7386bf02567/go.mod h1:DWNGW8A4Y+GyBgPuaQJuWiy0XYftx4Xm/y5Jqk9I6VQ=
+github.com/rach-id/celestia-core v0.0.2-0.20261110104522-9922c622c561 h1:iUUfPBLyE4/wJT/YU4ED/cM2F9HJpmGDE1p7Iv/KcSg=
+github.com/rach-id/celestia-core v0.0.2-0.20261110104522-9922c622c561/go.mod h1:OZ9m6NfK/umKoWMzVAL2pC/oBQbHtB3dP24hHmVBrwo=
 github.com/raeperd/recvcheck v0.2.0 h1:GnU+NsbiCqdC2XX5+vMZzP+jAJC5fht7rcVTAhX74UI=
 github.com/raeperd/recvcheck v0.2.0/go.mod h1:n04eYkwIR0JbgD73wT8wL4JjPC3wm0nFtzBnWNocnYU=
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
