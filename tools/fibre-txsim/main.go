@@ -298,7 +298,7 @@ func run(cfg config) error {
 	// Confirmation channel: upload workers send requests, confirm workers poll for inclusion.
 	const confirmWorkers = 8
 	var confirmCh chan confirmRequest
-	if !cfg.uploadOnly {
+	if !cfg.uploadOnly && !noConfirm {
 		confirmCh = make(chan confirmRequest, cfg.concurrency*4)
 	}
 
