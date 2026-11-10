@@ -302,7 +302,7 @@ replace (
 	cosmossdk.io/x/upgrade => github.com/celestiaorg/cosmos-sdk/x/upgrade v0.2.0
 	github.com/bcp-innovations/hyperlane-cosmos => github.com/celestiaorg/hyperlane-cosmos v1.3.4
 	github.com/celestiaorg/celestia-app/v11 => ../..
-	github.com/cometbft/cometbft => github.com/rach-id/celestia-core v0.0.2-0.20261110104522-9922c622c561
+	github.com/cometbft/cometbft => github.com/rach-id/celestia-core v0.0.2-0.20261110150347-43bbc8a4f1a3
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v0.53.2
 	github.com/cosmos/ibc-go/modules/capability => github.com/celestiaorg/ibc-go/modules/capability v1.0.2
 	github.com/cosmos/ibc-go/v8 => github.com/celestiaorg/ibc-go/v8 v8.7.3

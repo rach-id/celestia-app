@@ -824,8 +824,8 @@ github.com/prometheus/procfs v0.1.3/go.mod h1:lV6e/gmhEcM9IjHGsFOCxxuZ+z1YqCvr4O
 github.com/prometheus/procfs v0.3.0/go.mod h1:lV6e/gmhEcM9IjHGsFOCxxuZ+z1YqCvr4OA4YeYWdaU=
 github.com/prometheus/procfs v0.22.0 h1:6q9+/JL9IKAPbCmBrv9n5O5Ty3NKnciV5X7YGw0oics=
 github.com/prometheus/procfs v0.22.0/go.mod h1:CvmFr/GVhIjIvWJZW3tgkODBQMRIf0EyWMQLHCHab58=
-github.com/rach-id/celestia-core v0.0.2-0.20261110104522-9922c622c561 h1:iUUfPBLyE4/wJT/YU4ED/cM2F9HJpmGDE1p7Iv/KcSg=
-github.com/rach-id/celestia-core v0.0.2-0.20261110104522-9922c622c561/go.mod h1:OZ9m6NfK/umKoWMzVAL2pC/oBQbHtB3dP24hHmVBrwo=
+github.com/rach-id/celestia-core v0.0.2-0.20261110150347-43bbc8a4f1a3 h1:kQw7aL2SVZL1cusj+oV5wtzV3gNtb8RcJ+H7SDKhwl4=
+github.com/rach-id/celestia-core v0.0.2-0.20261110150347-43bbc8a4f1a3/go.mod h1:OZ9m6NfK/umKoWMzVAL2pC/oBQbHtB3dP24hHmVBrwo=
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
 github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 h1:N/ElC8H3+5XpJzTSTfLsJV/mx9Q9g7kxmchpfZyxgzM=
 github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
