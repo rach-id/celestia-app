@@ -2,7 +2,7 @@ package keeper
 
 import (
 	"crypto/rand"
-	"math/big"
+	"encoding/binary"
 	"os"
 	"strconv"
 	"strings"
@@ -26,13 +26,18 @@ func (k Keeper) benchFill(ctx sdk.Context) {
 	if benchFillTotal <= 0 || ctx.ExecMode() != sdk.ExecModeFinalize || benchFilled.Load() >= benchFillTotal {
 		return
 	}
-	window := k.GetParams(ctx).PaymentPromiseRetentionWindow() - 5*time.Minute
+	window := k.GetParams(ctx).PaymentPromiseRetentionWindow() - 15*time.Minute
 	n := min(benchFillPerBlock, benchFillTotal-benchFilled.Load())
-	for range n {
+	// Ascending keys spread uniformly over the hash space and the window: the tree ends up
+	// as random inserts would leave it, but each insert walks the cached rightmost path.
+	step := ^uint64(0) / uint64(benchFillTotal)
+	start := ctx.BlockTime().Add(-window)
+	for i := benchFilled.Load(); i < benchFilled.Load()+n; i++ {
 		hash := make([]byte, 32)
-		_, _ = rand.Read(hash)
-		age, _ := rand.Int(rand.Reader, big.NewInt(int64(window)))
-		k.SetProcessedPayment(ctx, types.ProcessedPayment{PaymentPromiseHash: hash, ProcessedAt: ctx.BlockTime().Add(-time.Duration(age.Int64()))})
+		_, _ = rand.Read(hash[8:])
+		binary.BigEndian.PutUint64(hash, uint64(i)*step)
+		at := start.Add(time.Duration(float64(window) * float64(i) / float64(benchFillTotal)))
+		k.SetProcessedPayment(ctx, types.ProcessedPayment{PaymentPromiseHash: hash, ProcessedAt: at})
 	}
 	k.Logger(ctx).Info("bench fill", "filled", benchFilled.Add(n), "total", benchFillTotal)
 }
