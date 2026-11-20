@@ -2,14 +2,18 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"time"
 
+	"github.com/celestiaorg/celestia-app/v11/app/encoding"
 	"github.com/celestiaorg/celestia-app/v11/fibre"
 	"github.com/celestiaorg/celestia-app/v11/pkg/user"
 	fibretypes "github.com/celestiaorg/celestia-app/v11/x/fibre/types"
 	"github.com/celestiaorg/go-square/v4/share"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -82,4 +86,24 @@ func submitPromiseOnly(ctx context.Context, w worker, ns share.Namespace, blobSi
 		default:
 		}
 	}
+}
+
+// memKeyring copies the worker keys <prefix>-0..n-1 into an in-memory keyring.
+func memKeyring(kr keyring.Keyring, enc encoding.Config, prefix string, n int) (keyring.Keyring, error) {
+	mem := keyring.NewInMemory(enc.Codec)
+	for i := range n {
+		name := fmt.Sprintf("%s-%d", prefix, i)
+		rec, err := kr.Key(name)
+		if err != nil {
+			return nil, err
+		}
+		var priv cryptotypes.PrivKey
+		if err := enc.Codec.UnpackAny(rec.GetLocal().PrivKey, &priv); err != nil {
+			return nil, err
+		}
+		if err := mem.ImportPrivKeyHex(name, hex.EncodeToString(priv.Bytes()), "secp256k1"); err != nil {
+			return nil, err
+		}
+	}
+	return mem, nil
 }
