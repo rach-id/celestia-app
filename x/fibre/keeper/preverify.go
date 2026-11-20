@@ -198,14 +198,14 @@ func (k Keeper) collectVerifications(ctx sdk.Context, decoded []*types.DecodedPa
 	// so the first occurrence warms both keys. Sized by the pass's message cap.
 	var seenCerts map[sigcache.Key]struct{}
 	if opts.Certificates && len(decoded) > 1 {
-		seenCerts = make(map[sigcache.Key]struct{}, min(len(decoded), appconsts.MaxPayForFibreCandidates))
+		seenCerts = make(map[sigcache.Key]struct{}, min(len(decoded), appconsts.BenchMaxPayForFibreCandidates))
 	}
 
 	for _, d := range decoded {
 		if d == nil || !d.PromiseKeyed() {
 			continue
 		}
-		if covered >= appconsts.MaxPayForFibreCandidates {
+		if covered >= appconsts.BenchMaxPayForFibreCandidates {
 			break
 		}
 		if seenCerts != nil && d.CertKeyed {

@@ -19,6 +19,7 @@ import (
 	"github.com/celestiaorg/go-square/v4/share"
 	"github.com/celestiaorg/go-square/v4/tx"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	coretypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -299,6 +300,26 @@ func TestFilteredSquareBuilderFillMaxPayForFibreMessages(t *testing.T) {
 
 	kept := fsb.Fill(ctx, pffTxs, math.MaxInt64)
 	require.Len(t, kept, appconsts.MaxPayForFibreMessages)
+}
+
+// TestFilteredSquareBuilderFillBenchCapKeepsCoreTxLimit checks a bench cap of 1000 leaves
+// room for other txs so the block stays within core's MaxBlockTxs.
+func TestFilteredSquareBuilderFillBenchCapKeepsCoreTxLimit(t *testing.T) {
+	txConfig := encoding.MakeConfig(ModuleEncodingRegisters...).TxConfig
+	alwaysPass := func(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) { return ctx, nil }
+
+	txs := [][]byte{newNormalTx(t, txConfig)}
+	for range appconsts.BenchMaxPayForFibreMessages {
+		txs = append(txs, blobfactory.UnsignedPayForFibreTx(t, txConfig))
+	}
+	fsb, err := NewFilteredSquareBuilder(alwaysPass, nil, txConfig, appconsts.SquareSizeUpperBound, appconsts.SubtreeRootThreshold)
+	require.NoError(t, err)
+	fsb.maxPFF, fsb.maxPFFCandidates = appconsts.BenchMaxPayForFibreMessages, appconsts.BenchMaxPayForFibreCandidates
+
+	ctx := sdk.NewContext(store.NewCommitMultiStore(dbm.NewMemDB(), log.NewNopLogger(), metrics.NewNoOpMetrics()), cmtproto.Header{}, false, log.NewNopLogger())
+	kept := fsb.Fill(ctx, txs, math.MaxInt64)
+	require.Len(t, kept, coretypes.MaxBlockTxs)
+	require.Equal(t, txs[0], kept[0], "the normal tx is kept and one PayForFibre tx makes room for it")
 }
 
 // newMultiPayForFibreTx creates an unsigned SDK tx containing two MsgPayForFibre messages for testing.

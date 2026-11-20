@@ -36,6 +36,8 @@ type FilteredSquareBuilder struct {
 	// for the whole Fill; preverifyPFF warms the signature cache. Both are optional.
 	decodePFF    func([]byte, *fibretypes.MsgPayForFibre) *fibretypes.DecodedPayForFibre
 	preverifyPFF func(sdk.Context, []*fibretypes.DecodedPayForFibre)
+	// Bench: PayForFibre inclusion cap and pre-verify candidates; PrepareProposal sets them live.
+	maxPFF, maxPFFCandidates int
 }
 
 func NewFilteredSquareBuilder(
@@ -54,6 +56,9 @@ func NewFilteredSquareBuilder(
 		msgRouter: msgRouter,
 		txConfig:  txConfig,
 		builder:   builder,
+
+		maxPFF:           appconsts.MaxPayForFibreMessages,
+		maxPFFCandidates: appconsts.MaxPayForFibreCandidates,
 	}, nil
 }
 
@@ -108,13 +113,13 @@ func (fsb *FilteredSquareBuilder) Fill(ctx sdk.Context, txs [][]byte, maxTxBytes
 	// Warm the signature cache across every CPU before filling. Failures are
 	// not recorded, so the fill still performs and decides each check itself.
 	if fsb.preverifyPFF != nil {
-		decoded := make([]*fibretypes.DecodedPayForFibre, 0, min(len(payForFibreTxs), appconsts.MaxPayForFibreCandidates))
+		decoded := make([]*fibretypes.DecodedPayForFibre, 0, min(len(payForFibreTxs), fsb.maxPFFCandidates))
 		// Decode the first candidates in parallel; the walk below reuses each entry's result and
 		// decodes past them only when some are invalid, which CheckTx makes rare.
-		head := payForFibreTxs[:min(len(payForFibreTxs), appconsts.MaxPayForFibreCandidates)]
+		head := payForFibreTxs[:min(len(payForFibreTxs), fsb.maxPFFCandidates)]
 		parallel.ForEach(len(head), func(i int) { fsb.decodeFibreTx(logger, dec, &head[i]) })()
 		for i := range payForFibreTxs {
-			if len(decoded) >= appconsts.MaxPayForFibreCandidates {
+			if len(decoded) >= fsb.maxPFFCandidates {
 				break
 			}
 			if fsb.decodeFibreTx(logger, dec, &payForFibreTxs[i]) {
@@ -304,7 +309,9 @@ func (fsb *FilteredSquareBuilder) Fill(ctx sdk.Context, txs [][]byte, maxTxBytes
 		m++
 	}
 
-	fibreTxs := processFibreTxsForSquare(fsb, ctx, dec, payForFibreTxs)
+	// Bench: a cap above 200 could overflow core's MaxBlockTxs, which would reject the block.
+	maxPFF := min(fsb.maxPFF, coretypes.MaxBlockTxs-n-m)
+	fibreTxs := processFibreTxsForSquare(fsb, ctx, dec, payForFibreTxs, maxPFF)
 
 	kept := make([][]byte, 0, n+m+len(fibreTxs))
 	kept = append(kept, normalTxs[:n]...)
@@ -495,10 +502,10 @@ func countMsgPayForFibre(sdkTx sdk.Tx) int {
 // processFibreTxsForSquare processes pay-for-fibre transactions: synthesize
 // system blob, validate, append to builder. Returns the raw tx bytes of
 // accepted fibre txs.
-func processFibreTxsForSquare(fsb *FilteredSquareBuilder, ctx sdk.Context, dec sdk.TxDecoder, payForFibreTxs []decodedFibreTx) [][]byte {
+func processFibreTxsForSquare(fsb *FilteredSquareBuilder, ctx sdk.Context, dec sdk.TxDecoder, payForFibreTxs []decodedFibreTx, maxPFF int) [][]byte {
 	logger := ctx.Logger().With("app/filtered-square-builder")
 	var pffMessageCount int
-	fibreTxs := make([][]byte, 0, min(len(payForFibreTxs), appconsts.MaxPayForFibreMessages))
+	fibreTxs := make([][]byte, 0, min(len(payForFibreTxs), max(maxPFF, 0)))
 	// A promise settles once; a later copy would fail settlement, so skip it before the ante.
 	settled := make(map[sigcache.Key]struct{})
 	certKeys := &fibretypes.CertKeyHolder{}
@@ -506,7 +513,7 @@ func processFibreTxsForSquare(fsb *FilteredSquareBuilder, ctx sdk.Context, dec s
 
 	for i := range payForFibreTxs {
 		// Every tx decodeFibreTx accepts weighs exactly one message, so nothing more fits.
-		if pffMessageCount >= appconsts.MaxPayForFibreMessages {
+		if pffMessageCount >= maxPFF {
 			break
 		}
 		entry := &payForFibreTxs[i]

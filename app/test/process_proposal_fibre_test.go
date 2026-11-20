@@ -3,6 +3,8 @@ package app_test
 import (
 	"bytes"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"slices"
 	"testing"
 	"time"
@@ -37,7 +39,10 @@ func TestProcessProposalCappingPayForFibreMessages(t *testing.T) {
 		t.Skip("skipping process proposal capping PayForFibre messages test in short mode.")
 	}
 
-	numPFFs := appconsts.MaxPayForFibreMessages + 1
+	// Bench: ProcessProposal accepts up to BenchMaxPayForFibreMessages; 300 is above mainnet's 200.
+	capFile := filepath.Join(t.TempDir(), "max_pff")
+	t.Setenv("CELESTIA_BENCH_MAX_PFF_FILE", capFile)
+	numPFFs := 300
 	numberOfAccounts := numPFFs
 	accounts := testfactory.GenerateAccounts(numberOfAccounts)
 	consensusParams := app.DefaultConsensusParams()
@@ -52,7 +57,7 @@ func TestProcessProposalCappingPayForFibreMessages(t *testing.T) {
 		seedFibreEscrow(t, testApp, testfactory.GetAddress(kr, account), 1_000_000)
 	}
 
-	// Generate MaxPayForFibreMessages+1 signed MsgPayForFibre txs.
+	// Generate numPFFs signed MsgPayForFibre txs.
 	pffTxs := make([][]byte, 0, numPFFs)
 	for i := range numPFFs {
 		pffTxs = append(pffTxs, newSignedPayForFibreTx(t, signers[i], accounts[i], true))
@@ -66,13 +71,14 @@ func TestProcessProposalCappingPayForFibreMessages(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			name:           "reject block exceeding MaxPayForFibreMessages",
-			txs:            pffTxs[:appconsts.MaxPayForFibreMessages+1],
+			// The count check runs before decoding, so copies of one tx are enough.
+			name:           "reject block exceeding BenchMaxPayForFibreMessages",
+			txs:            slices.Repeat(pffTxs[:1], appconsts.BenchMaxPayForFibreMessages+1),
 			expectedResult: abci.ResponseProcessProposal_REJECT,
 		},
 		{
-			name:           "accept block at exactly MaxPayForFibreMessages",
-			txs:            pffTxs[:appconsts.MaxPayForFibreMessages],
+			name:           "accept block above the mainnet cap",
+			txs:            pffTxs,
 			expectedResult: abci.ResponseProcessProposal_ACCEPT,
 		},
 	}
@@ -118,6 +124,22 @@ func TestProcessProposalCappingPayForFibreMessages(t *testing.T) {
 			}
 		})
 	}
+
+	// Bench: PrepareProposal re-reads its cap from the file on every call.
+	prepare := func() int {
+		resp, err := testApp.PrepareProposal(&abci.RequestPrepareProposal{
+			Txs:    pffTxs,
+			Height: testApp.LastBlockHeight() + 1,
+			Time:   time.Now(),
+		})
+		require.NoError(t, err)
+		return len(resp.Txs)
+	}
+	require.Equal(t, appconsts.MaxPayForFibreMessages, prepare(), "no cap file")
+	require.NoError(t, os.WriteFile(capFile, []byte("250\n"), 0o600))
+	require.Equal(t, 250, prepare())
+	require.NoError(t, os.WriteFile(capFile, []byte("120"), 0o600))
+	require.Equal(t, 120, prepare())
 }
 
 // TestProcessProposalParallelSquare runs every block shape through the square built

@@ -71,7 +71,7 @@ func (app *App) ProcessProposalHandler(ctx sdk.Context, req *abci.RequestProcess
 		pfbMessageCount int
 		pffMessageCount int
 		pffTxCount      int
-		maxPFF          = appconsts.MaxPayForFibreMessages
+		maxPFF          = appconsts.BenchMaxPayForFibreMessages // bench: accept any live proposer cap
 		// Decode caches for this proposal, index aligned with req.Txs: the
 		// blob tx or pay-for-fibre tx decoded from req.Txs[i], nil if neither.
 		// On a cache hit the proposer's own decodes are reused instead.

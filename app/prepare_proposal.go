@@ -35,6 +35,9 @@ func (app *App) PrepareProposalHandler(ctx sdk.Context, req *abci.RequestPrepare
 		return nil, fmt.Errorf("failed to create FilteredSquareBuilder: %w", err)
 	}
 	fsb.validateBlobTx = app.ValidateBlobTxWithCache
+	// Bench: the proposer's PayForFibre cap is re-read from a file on every proposal.
+	fsb.maxPFF = appconsts.ProposerMaxPayForFibreMessages()
+	fsb.maxPFFCandidates = 2 * fsb.maxPFF
 
 	fsb.decodePFF = fibrekeeper.DerivePayForFibre
 	fsb.preverifyPFF = func(ctx sdk.Context, decoded []*fibretypes.DecodedPayForFibre) {

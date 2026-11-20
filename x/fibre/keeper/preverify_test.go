@@ -63,7 +63,7 @@ func (f *preverifyFixture) withFreshCache(t *testing.T) *preverifyFixture {
 	t.Helper()
 
 	fresh := *f
-	fresh.cache = sigcache.New(1024)
+	fresh.cache = sigcache.New(8192)
 	fresh.keeper = keeper.NewKeeper(codec.NewProtoCodec(codectypes.NewInterfaceRegistry()), f.storeKey,
 		&MockBankKeeper{}, f.stakingKeeper, authtypes.NewModuleAddress("gov").String(), false, fresh.cache)
 	return &fresh
@@ -111,7 +111,7 @@ func newPreverifyFixtureWithValidators(t *testing.T, validators int) *preverifyF
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	ctx := sdk.NewContext(stateStore, cmtproto.Header{ChainID: "test-chain", Time: time.Now().UTC(), Height: 100}, false, nil)
-	cache := sigcache.New(1024)
+	cache := sigcache.New(8192)
 	stakingKeeper := &MockStakingKeeper{}
 	k := keeper.NewKeeper(codec.NewProtoCodec(codectypes.NewInterfaceRegistry()), storeKey,
 		&MockBankKeeper{}, stakingKeeper, authtypes.NewModuleAddress("gov").String(), false, cache)
@@ -705,10 +705,10 @@ func TestPreverifyDecodedMatchesPreverifySignatures(t *testing.T) {
 }
 
 // TestPreverifyCapsAtCandidateBound pins the backstop: the pass covers at most
-// MaxPayForFibreCandidates messages however many the caller hands it.
+// BenchMaxPayForFibreCandidates messages however many the caller hands it.
 func TestPreverifyCapsAtCandidateBound(t *testing.T) {
 	f := newPreverifyFixture(t)
-	limit := appconsts.MaxPayForFibreCandidates
+	limit := appconsts.BenchMaxPayForFibreCandidates
 
 	decoded := make([]*types.DecodedPayForFibre, 0, limit+1)
 	for i := range limit + 1 {
