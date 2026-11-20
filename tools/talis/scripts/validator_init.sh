@@ -41,8 +41,8 @@ sysctl -w net.ipv4.tcp_congestion_control=bbr
 # slow receive-window ramp at high RTT.
 sysctl -w net.ipv4.tcp_rmem="4096 4194304 33554432"
 
-# Enable MPTCP
-sysctl -w net.mptcp.enabled=1
+# Bench: MPTCP off (open Linux MPTCP use-after-free, CVE-2026-98432).
+sysctl -w net.mptcp.enabled=0
 
 # Set the path manager to ndiffports
 sysctl -w net.mptcp.mptcp_path_manager=ndiffports
@@ -167,7 +167,7 @@ mv payload/$parsed_hostname/config.toml $HOME/$CELES_HOME/config/config.toml
 cp -r payload/$parsed_hostname/keyring-test $HOME/$CELES_HOME
 
 # run txsim script which starts a sleep timer and txsim in a different tmux session
-source payload/txsim.sh
+if [ -f payload/txsim.sh ]; then source payload/txsim.sh; fi
 
 # Get the hostname of the machine
 HOSTNAME=$(hostname)
@@ -177,6 +177,9 @@ COMMAND="celestia-appd start"
 
 # Define log file path
 LOG_FILE="/root/logs"
+
+# Per-node env (KEY=VALUE lines), e.g. bench switches.
+if [ -f /root/bench_env ]; then set -a; source /root/bench_env; set +a; fi
 
 # Execute the command and redirect output to the log file
 eval $COMMAND 2>&1 | tee -a "$LOG_FILE"
