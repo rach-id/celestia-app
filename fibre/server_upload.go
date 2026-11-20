@@ -56,7 +56,7 @@ func (s *Server) UploadShard(ctx context.Context, req *types.UploadShardRequest)
 	// validate request shape before verifyAssignment/verifyShard dereference
 	// the shard. A peer can send UploadShard with the Shard field omitted,
 	// which would otherwise cause a nil-pointer panic in the handler.
-	if req.Shard == nil {
+	if req.Shard == nil && !BenchPromiseOnly {
 		err := errors.New("shard is required")
 		log.WarnContext(ctx, "missing shard in upload request", "error", err)
 		span.RecordError(err)
@@ -78,6 +78,8 @@ func (s *Server) UploadShard(ctx context.Context, req *types.UploadShardRequest)
 		span.SetStatus(codes.Error, "store presence check failed")
 		return nil, status.Error(grpccodes.Internal, "failed to check if store has the commitment")
 	}
+	// Bench promise-only: no shard to verify or store, so take the already-stored path and just sign.
+	has = has || req.Shard == nil
 
 	var (
 		rows []*rsema1d.RowProof
