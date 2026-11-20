@@ -68,7 +68,7 @@ func main() {
 	flag.StringVar(&cfg.keyPrefix, "key-prefix", "fibre", "key name prefix in keyring (keys are named <prefix>-0, <prefix>-1, ...)")
 	flag.IntVar(&cfg.blobSize, "blob-size", 1000000, "size of each blob in bytes")
 	flag.IntVar(&cfg.concurrency, "concurrency", 1, "number of concurrent blob submissions (each gets its own account)")
-	flag.DurationVar(&cfg.interval, "interval", 0, "delay between blob submissions per worker (0 = no delay)")
+	flag.DurationVar(&cfg.interval, "interval", 0, "per-worker interval between submission starts (0 = back to back); offered rate = concurrency/interval")
 	flag.DurationVar(&cfg.duration, "duration", 0, "how long to run (0 = until killed)")
 	flag.StringVar(&cfg.otelEndpoint, "otel-endpoint", "", "OpenTelemetry OTLP HTTP endpoint for metrics (e.g. http://host:4318)")
 	flag.StringVar(&cfg.otelMetricsPath, "otel-metrics-path", otlpMetricsPath, "OTLP HTTP metrics path (replaces the endpoint URL path)")
@@ -332,17 +332,23 @@ func run(cfg config) error {
 		}
 	}
 
-	// Launch upload workers
-	for _, w := range workers {
+	// Launch upload workers, staggered across one interval so their starts do not align.
+	startPacing(ctx, cfg.interval)
+	go reportRates(ctx, st)
+	for i, w := range workers {
 		uploadWg.Go(func() {
+			next := time.Now().Add(time.Duration(liveInterval.Load()) * time.Duration(i) / time.Duration(len(workers)))
+			if time.Until(next) > 0 {
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(time.Until(next)):
+				}
+			}
 			for ctx.Err() == nil {
 				submitBlob(ctx, w, cfg.blobSize, cfg.uploadOnly, st, dlCh, confirmCh)
-				if cfg.interval > 0 {
-					select {
-					case <-ctx.Done():
-						return
-					case <-time.After(cfg.interval):
-					}
+				if !waitNext(ctx, &next) {
+					return
 				}
 			}
 		})
