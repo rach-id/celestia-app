@@ -474,7 +474,7 @@ replace (
 	github.com/cometbft/cometbft => github.com/rach-id/celestia-core v0.0.2-0.20261121184722-5be5b4a7682e
 	// Pin to the celestia fork of cosmos-db for a configurable pebble block cache.
 	github.com/cosmos/cosmos-db => github.com/celestiaorg/cosmos-db v1.1.3-celestia.1
-	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v0.53.6
+	github.com/cosmos/cosmos-sdk => github.com/rach-id/cosmos-sdk v0.43.0-beta1.0.20261121184952-c58da1ef6d8e
 	// Pin to the celestia fork of packet-forward-middleware for deterministic and
 	// bounded memo handling. See celestiaorg/ibc-apps#3.
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v8 => github.com/celestiaorg/ibc-apps/middleware/packet-forward-middleware/v8 v8.2.1-celestia
