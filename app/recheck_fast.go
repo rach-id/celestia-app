@@ -192,9 +192,7 @@ func (f *fastRecheck) recheck(tx []byte) (*abci.ResponseCheckTx, bool) {
 		f.misses++
 		return nil, false
 	}
-	if rec.promise != nil {
-		f.app.recheckTxs.get(key) // keep the PayForFibre decode for a later full recheck
-	}
+	f.app.recheckTxs.get(key) // keep the cached decode for a later full recheck
 	f.hits++
 	return res, true
 }
